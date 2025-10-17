@@ -5,54 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TanyaGame</title>
 <style>
+  :root {
+    --grad1: #ff9ff3;
+    --grad2: #feca57;
+    --grad3: #48dbfb;
+    --grad4: #1dd1a1;
+  }
+
+  /* 🌈 Анимированный градиентный фон */
   body {
-    background: linear-gradient(180deg, #ffe6f0, #fff);
-    font-family: 'Comic Sans MS', cursive;
-    color: #444;
     margin: 0;
+    font-family: 'Comic Sans MS', cursive;
+    color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: linear-gradient(-45deg, var(--grad1), var(--grad2), var(--grad3), var(--grad4));
+    background-size: 400% 400%;
+    animation: gradientFlow 12s ease infinite;
+    perspective: 1000px;
+    position: relative;
   }
 
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ☁️ Облака */
+  .cloud {
+    position: absolute;
+    top: 0;
+    width: 200px;
+    opacity: 0.6;
+    z-index: 0;
+    animation: floatCloud linear infinite;
+  }
+
+  @keyframes floatCloud {
+    from { transform: translateX(-250px); }
+    to { transform: translateX(110vw); }
+  }
+
+  .cloud:nth-child(1) { top: 60px; animation-duration: 60s; left: -200px; }
+  .cloud:nth-child(2) { top: 150px; animation-duration: 80s; left: -300px; opacity: 0.5; }
+  .cloud:nth-child(3) { top: 220px; animation-duration: 100s; left: -250px; opacity: 0.7; }
+
   h1 {
-    color: #e84393;
-    margin-top: 20px;
+    color: #ff3c8d;
+    margin-top: 30px;
+    font-size: 2.6em;
+    text-shadow: 2px 2px 8px rgba(255,255,255,0.8);
+    z-index: 1;
   }
 
   #game-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    margin-top: 30px;
-    gap: 30px;
+    margin-top: 40px;
+    gap: 50px;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 0 10px;
+    position: relative;
+    z-index: 1;
   }
 
-  /* Инвентарь */
   #inventory {
-    background: #fff3f9;
-    border: 2px solid #ffb6c1;
-    border-radius: 12px;
-    padding: 15px;
-    width: 240px;
-    height: 340px;
+    background: rgba(255,255,255,0.85);
+    border: 3px solid #ffb6c1;
+    border-radius: 16px;
+    padding: 20px;
+    width: 300px;
+    height: 420px;
     overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px rgba(255, 182, 193, 0.6);
   }
 
   #inventory h3 {
     margin-top: 0;
     text-align: center;
     color: #d63031;
+    font-size: 1.3em;
   }
 
   .item {
     background: #fff;
-    border-radius: 8px;
-    padding: 8px;
-    margin: 6px 0;
-    font-size: 16px;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -61,7 +107,6 @@
   .count { color: #6c5ce7; font-weight: bold; }
   .points { color: #00b894; font-weight: bold; }
 
-  /* Центральная часть */
   #game {
     text-align: center;
     position: relative;
@@ -72,37 +117,34 @@
     justify-content: center;
     align-items: center;
     gap: 60px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     position: relative;
   }
 
-  /* Таня */
   .photo {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
-    border: 4px solid #ffb6c1;
+    border: 5px solid #ff99cc;
     object-fit: cover;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     animation: sway 3s infinite ease-in-out;
     transition: transform 0.4s ease, box-shadow 0.5s;
   }
 
-  /* Качание Тани */
   @keyframes sway {
     0% { transform: rotate(-3deg); }
     50% { transform: rotate(3deg); }
     100% { transform: rotate(-3deg); }
   }
 
-  /* Победа — вращение */
+  /* Победа и подсрачник */
   @keyframes tanyaWin {
     0% { transform: scale(1) rotate(0deg); }
     50% { transform: scale(1.3) rotate(360deg); }
     100% { transform: scale(1) rotate(720deg); }
   }
 
-  /* Подсрачник */
   @keyframes smack {
     0% { transform: translateX(0); }
     40% { transform: translateX(-80px) rotate(-10deg); }
@@ -110,62 +152,110 @@
     100% { transform: translateX(0); }
   }
 
-  /* Градиент вокруг Тани */
-  @keyframes glow {
-    0% { box-shadow: 0 0 0px 0 rgba(255, 0, 150, 0.6); }
-    50% { box-shadow: 0 0 40px 20px rgba(255, 0, 150, 0.8), 0 0 80px 40px rgba(255,255,0,0.5); }
-    100% { box-shadow: 0 0 0px 0 rgba(255, 0, 150, 0); }
-  }
-
   .tanya-spin { animation: tanyaWin 1s ease; }
   .yulia-hit { animation: smack 0.6s ease; }
-  .tanya-glow { animation: glow 2s ease; }
 
+  .popup {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff0077;
+    opacity: 0;
+    animation: popupFade 0.8s ease forwards;
+    text-shadow: 0 0 10px white;
+  }
+
+  @keyframes popupFade {
+    0% { opacity: 1; transform: translate(-50%, -10px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -70px) scale(1.3); }
+  }
+
+  /* 🌟 Кнопка */
   #tanya-btn {
-    background: #ff9ff3;
-    border: 3px solid #ff6bcb;
+    position: relative;
+    background: linear-gradient(45deg, #ff80bf, #ffb6c1);
+    border: 4px solid #ff5ea2;
     border-radius: 50%;
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     font-size: 18px;
     color: white;
     font-weight: bold;
     cursor: pointer;
     transition: transform 0.1s;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 15px rgba(255, 0, 100, 0.3);
   }
 
   #tanya-btn:active { transform: scale(0.9); }
 
-  #counter { font-size: 24px; margin-top: 20px; }
+  #counter { font-size: 26px; margin-top: 25px; }
   #message { font-size: 18px; color: #2d3436; margin-top: 15px; min-height: 30px; }
 
-  footer { margin-top: auto; margin-bottom: 10px; color: #aaa; }
+  footer { margin-top: auto; margin-bottom: 15px; color: #555; font-size: 1em; }
+
+  /* 📱 Мобильная версия */
+  @media (max-width: 768px) {
+    body { overflow-x: hidden; }
+
+    #game-container {
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #game {
+      order: 1;
+    }
+
+    #inventory {
+      order: 2;
+      width: 90%;
+      height: auto;
+    }
+
+    #photos { gap: 20px; }
+    .photo { width: 120px; height: 120px; }
+    #tanya-btn { width: 140px; height: 140px; font-size: 15px; }
+    h1 { font-size: 1.8em; text-align: center; }
+  }
 </style>
 </head>
 <body>
 
-<h1>Кликай и прокачай Таню</h1>
+<!-- ☁️ Облака -->
+<img src="cloud1.png" class="cloud">
+<img src="cloud2.png" class="cloud">
+<img src="cloud3.png" class="cloud">
+
+<h1>Кликай и прокачай Таню 💫</h1>
 
 <div id="game-container">
+  <div id="game">
+    <div id="photos">
+      <img id="tanya" class="photo" src="tanya1.png" alt="Таня">
+      <div id="yulia-container" style="position: relative;">
+        <img id="yulia" class="photo" src="yulia.png" alt="Юля">
+      </div>
+    </div>
+
+    <button id="tanya-btn">Попросить у Юли что-то 👧</button>
+    <div id="counter">Очки: 0</div>
+    <div id="message">Кликай, чтобы получить подарки!</div>
+  </div>
+
   <div id="inventory">
     <h3>🎁 Инвентарь</h3>
     <div id="items"></div>
   </div>
-
-  <div id="game">
-    <div id="photos">
-      <img id="tanya" class="photo" src="tanya1.png" alt="Таня">
-      <img id="yulia" class="photo" src="yulia.png" alt="Юля">
-    </div>
-
-    <button id="tanya-btn">Кликни и попроси у Юли шо нибудь 👧</button>
-    <div id="counter">Очки: 0</div>
-    <div id="message">Кликай, чтобы получить подарки!</div>
-  </div>
 </div>
 
 <footer>© 2025 Таня и Юля Production 😄</footer>
+
+<audio id="levelUpSound" src="levelup.mp3" preload="auto"></audio>
+<audio id="clickSound" src="click.mp3" preload="auto"></audio>
 
 <script>
   let points = 0;
@@ -176,22 +266,19 @@
   const inventoryDiv = document.getElementById('items');
   const tanyaImg = document.getElementById('tanya');
   const yuliaImg = document.getElementById('yulia');
+  const yuliaContainer = document.getElementById('yulia-container');
+  const levelUpSound = document.getElementById('levelUpSound');
+  const clickSound = document.getElementById('clickSound');
+  const button = document.getElementById('tanya-btn');
 
-  // Разные стадии Таниной эволюции
-  const tanyaImages = [
-    "tanya1.png", // старт
-    "tanya2.png", // 100 очков
-    "tanya3.png", // 200 очков
-    "tanya4.png", // 300 очков
-    "tanya5.png", // 400 очков
-    "tanya6.png"  // 500+
-  ];
+  const tanyaImages = ["tanya1.png","tanya2.png","tanya3.png","tanya4.png","tanya5.png","tanya6.png"];
+  const glowClasses = ["glowPink","glowBlue","glowPurple","glowGold","glowGreen","glowPink"];
   let currentStage = 0;
 
   const gifts = [
     { name: 'Пирожное 🍰', value: 20 },
     { name: 'Мороженое 🍦', value: 40 },
-    { name: 'Подсрачник 😅', value: -60 }, // теперь -60
+    { name: 'Подсрачник 😅', value: -60 },
     { name: 'Арбуз 🍉', value: 100 },
     { name: 'Конфета 🍬', value: 10 },
     { name: 'Чашка какао ☕', value: 25 },
@@ -200,12 +287,14 @@
 
   const inventory = {};
 
-  document.getElementById('tanya-btn').addEventListener('click', () => {
+  button.addEventListener('click', () => {
     points++;
     clicksSinceLastGift++;
     counter.textContent = `Очки: ${points}`;
     message.textContent = 'Таня кликает! 😊';
-
+    clickSound.currentTime = 0;
+    clickSound.play().catch(()=>{});
+    moveButton();
     checkEvolution();
     if (clicksSinceLastGift >= nextGiftAt) {
       giveRandomGift();
@@ -219,7 +308,7 @@
     points += gift.value;
     counter.textContent = `Очки: ${points}`;
     checkEvolution();
-
+    showPopup();
     if (!inventory[gift.name]) {
       inventory[gift.name] = { count: 1, totalPoints: gift.value };
       addGiftToInventory(gift.name, gift.value);
@@ -238,6 +327,23 @@
       tanyaImg.classList.add('tanya-spin');
       setTimeout(() => tanyaImg.classList.remove('tanya-spin'), 1000);
     }
+  }
+
+  function showPopup() {
+    const popup = document.createElement('div');
+    popup.textContent = 'На!';
+    popup.className = 'popup';
+    yuliaContainer.appendChild(popup);
+    setTimeout(() => popup.remove(), 800);
+  }
+
+  function moveButton() {
+    const maxX = 120;
+    const maxY = 60;
+    const randX = getRandomInt(-maxX, maxX);
+    const randY = getRandomInt(-maxY, maxY);
+    button.style.transform = `translate(${randX}px, ${randY}px)`;
+    setTimeout(() => { button.style.transform = 'translate(0,0)'; }, 500);
   }
 
   function addGiftToInventory(name, value) {
@@ -266,8 +372,11 @@
     if (stage !== currentStage) {
       currentStage = stage;
       tanyaImg.src = tanyaImages[stage];
-      tanyaImg.classList.add('tanya-glow');
-      setTimeout(() => tanyaImg.classList.remove('tanya-glow'), 2000);
+      const glowClass = glowClasses[stage];
+      tanyaImg.classList.add(glowClass);
+      levelUpSound.currentTime = 0;
+      levelUpSound.play().catch(()=>{});
+      setTimeout(() => tanyaImg.classList.remove(glowClass), 2000);
     }
   }
 
@@ -278,4 +387,3 @@
 
 </body>
 </html>
-

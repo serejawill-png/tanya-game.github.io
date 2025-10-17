@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TanyaGame</title>
+<style>
+  body {
+    background: linear-gradient(180deg, #ffe6f0, #fff);
+    font-family: 'Comic Sans MS', cursive;
+    color: #444;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+  }
+
+  h1 {
+    color: #e84393;
+    margin-top: 20px;
+  }
+
+  #game-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 30px;
+    gap: 30px;
+  }
+
+  /* Инвентарь */
+  #inventory {
+    background: #fff3f9;
+    border: 2px solid #ffb6c1;
+    border-radius: 12px;
+    padding: 15px;
+    width: 240px;
+    height: 340px;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  #inventory h3 {
+    margin-top: 0;
+    text-align: center;
+    color: #d63031;
+  }
+
+  .item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 6px 0;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .count { color: #6c5ce7; font-weight: bold; }
+  .points { color: #00b894; font-weight: bold; }
+
+  /* Центральная часть */
+  #game {
+    text-align: center;
+    position: relative;
+  }
+
+  #photos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  /* Таня */
+  .photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid #ffb6c1;
+    object-fit: cover;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation: sway 3s infinite ease-in-out;
+    transition: transform 0.4s ease, box-shadow 0.5s;
+  }
+
+  /* Качание Тани */
+  @keyframes sway {
+    0% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+    100% { transform: rotate(-3deg); }
+  }
+
+  /* Победа — вращение */
+  @keyframes tanyaWin {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.3) rotate(360deg); }
+    100% { transform: scale(1) rotate(720deg); }
+  }
+
+  /* Подсрачник */
+  @keyframes smack {
+    0% { transform: translateX(0); }
+    40% { transform: translateX(-80px) rotate(-10deg); }
+    60% { transform: translateX(-80px) rotate(-10deg); }
+    100% { transform: translateX(0); }
+  }
+
+  /* Градиент вокруг Тани */
+  @keyframes glow {
+    0% { box-shadow: 0 0 0px 0 rgba(255, 0, 150, 0.6); }
+    50% { box-shadow: 0 0 40px 20px rgba(255, 0, 150, 0.8), 0 0 80px 40px rgba(255,255,0,0.5); }
+    100% { box-shadow: 0 0 0px 0 rgba(255, 0, 150, 0); }
+  }
+
+  .tanya-spin { animation: tanyaWin 1s ease; }
+  .yulia-hit { animation: smack 0.6s ease; }
+  .tanya-glow { animation: glow 2s ease; }
+
+  #tanya-btn {
+    background: #ff9ff3;
+    border: 3px solid #ff6bcb;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  #tanya-btn:active { transform: scale(0.9); }
+
+  #counter { font-size: 24px; margin-top: 20px; }
+  #message { font-size: 18px; color: #2d3436; margin-top: 15px; min-height: 30px; }
+
+  footer { margin-top: auto; margin-bottom: 10px; color: #aaa; }
+</style>
+</head>
+<body>
+
+<h1>Кликай и прокачай Таню</h1>
+
+<div id="game-container">
+  <div id="inventory">
+    <h3>🎁 Инвентарь</h3>
+    <div id="items"></div>
+  </div>
+
+  <div id="game">
+    <div id="photos">
+      <img id="tanya" class="photo" src="tanya1.png" alt="Таня">
+      <img id="yulia" class="photo" src="yulia.png" alt="Юля">
+    </div>
+
+    <button id="tanya-btn">Кликни и попроси у Юли шо нибудь 👧</button>
+    <div id="counter">Очки: 0</div>
+    <div id="message">Кликай, чтобы получить подарки!</div>
+  </div>
+</div>
+
+<footer>© 2025 Таня и Юля Production 😄</footer>
+
+<script>
+  let points = 0;
+  let clicksSinceLastGift = 0;
+  let nextGiftAt = getRandomInt(1, 10);
+  const counter = document.getElementById('counter');
+  const message = document.getElementById('message');
+  const inventoryDiv = document.getElementById('items');
+  const tanyaImg = document.getElementById('tanya');
+  const yuliaImg = document.getElementById('yulia');
+
+  // Разные стадии Таниной эволюции
+  const tanyaImages = [
+    "tanya1.png", // старт
+    "tanya2.png", // 100 очков
+    "tanya3.png", // 200 очков
+    "tanya4.png", // 300 очков
+    "tanya5.png", // 400 очков
+    "tanya6.png"  // 500+
+  ];
+  let currentStage = 0;
+
+  const gifts = [
+    { name: 'Пирожное 🍰', value: 20 },
+    { name: 'Мороженое 🍦', value: 40 },
+    { name: 'Подсрачник 😅', value: -60 }, // теперь -60
+    { name: 'Арбуз 🍉', value: 100 },
+    { name: 'Конфета 🍬', value: 10 },
+    { name: 'Чашка какао ☕', value: 25 },
+    { name: 'Котик 🐱', value: 50 }
+  ];
+
+  const inventory = {};
+
+  document.getElementById('tanya-btn').addEventListener('click', () => {
+    points++;
+    clicksSinceLastGift++;
+    counter.textContent = `Очки: ${points}`;
+    message.textContent = 'Таня кликает! 😊';
+
+    checkEvolution();
+    if (clicksSinceLastGift >= nextGiftAt) {
+      giveRandomGift();
+      clicksSinceLastGift = 0;
+      nextGiftAt = getRandomInt(1, 10);
+    }
+  });
+
+  function giveRandomGift() {
+    const gift = gifts[Math.floor(Math.random() * gifts.length)];
+    points += gift.value;
+    counter.textContent = `Очки: ${points}`;
+    checkEvolution();
+
+    if (!inventory[gift.name]) {
+      inventory[gift.name] = { count: 1, totalPoints: gift.value };
+      addGiftToInventory(gift.name, gift.value);
+    } else {
+      inventory[gift.name].count++;
+      inventory[gift.name].totalPoints += gift.value;
+      updateGiftInInventory(gift.name);
+    }
+
+    if (gift.name.includes('Подсрачник')) {
+      message.textContent = `Юля дала подсрачник 😬 (${gift.value} очков!)`;
+      yuliaImg.classList.add('yulia-hit');
+      setTimeout(() => yuliaImg.classList.remove('yulia-hit'), 600);
+    } else {
+      message.textContent = `Юля дала ${gift.name}! 🎉 (+${gift.value} очков)`;
+      tanyaImg.classList.add('tanya-spin');
+      setTimeout(() => tanyaImg.classList.remove('tanya-spin'), 1000);
+    }
+  }
+
+  function addGiftToInventory(name, value) {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.id = `gift-${encodeURIComponent(name)}`;
+    div.innerHTML = `
+      <div>${name} <span class="count">x1</span></div>
+      <div class="points">${value > 0 ? '+' + value : value}</div>
+    `;
+    inventoryDiv.prepend(div);
+  }
+
+  function updateGiftInInventory(name) {
+    const data = inventory[name];
+    const div = document.getElementById(`gift-${encodeURIComponent(name)}`);
+    if (div) {
+      div.querySelector('.count').textContent = `x${data.count}`;
+      div.querySelector('.points').textContent =
+        data.totalPoints > 0 ? '+' + data.totalPoints : data.totalPoints;
+    }
+  }
+
+  function checkEvolution() {
+    const stage = Math.min(Math.floor(points / 100), tanyaImages.length - 1);
+    if (stage !== currentStage) {
+      currentStage = stage;
+      tanyaImg.src = tanyaImages[stage];
+      tanyaImg.classList.add('tanya-glow');
+      setTimeout(() => tanyaImg.classList.remove('tanya-glow'), 2000);
+    }
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+</script>
+
+</body>
+</html>

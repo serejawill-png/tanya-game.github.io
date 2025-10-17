@@ -177,9 +177,9 @@
     background: linear-gradient(45deg, #ff80bf, #ffb6c1);
     border: 4px solid #ff5ea2;
     border-radius: 50%;
-    width: 180px;
-    height: 180px;
-    font-size: 18px;
+    width: 120px;
+    height: 120px;
+    font-size: 14px;
     color: white;
     font-weight: bold;
     cursor: pointer;
@@ -249,24 +249,45 @@
 <script>
   const button = document.getElementById('tanya-btn');
   const playArea = document.getElementById('play-area');
-  let btnX = window.innerWidth / 2 - 90;
+
+  // стартовая позиция (центр экрана по X и Y=100)
+  let btnX = window.innerWidth / 2 - 60; // сдвиг с учетом половины размера кнопки (120/2)
   let btnY = 100;
 
-  // начальная позиция кнопки
   button.style.left = btnX + 'px';
   button.style.top = btnY + 'px';
+
+  // Для плавного движения
+  let targetX = btnX;
+  let targetY = btnY;
+
+  function lerp(start, end, t) {
+    return start + (end - start) * t;
+  }
 
   function moveButtonRandom() {
     const margin = 50;
     const maxX = window.innerWidth - button.offsetWidth - margin;
     const maxY = 250 - button.offsetHeight - margin;
-    btnX = Math.min(Math.max(btnX + getRandomInt(-100, 100), margin), maxX);
-    btnY = Math.min(Math.max(btnY + getRandomInt(-60, 60), 0), maxY);
-    button.style.left = btnX + 'px';
-    button.style.top = btnY + 'px';
+    targetX = Math.min(Math.max(btnX + getRandomInt(-100, 100), margin), maxX);
+    targetY = Math.min(Math.max(btnY + getRandomInt(-60, 60), 0), maxY);
   }
 
-  // основная логика (как раньше)
+  // Функция плавного обновления позиции
+  function animate() {
+    // Плавно приближаемся к targetX/Y
+    btnX = lerp(btnX, targetX, 0.05);
+    btnY = lerp(btnY, targetY, 0.05);
+
+    button.style.left = btnX + 'px';
+    button.style.top = btnY + 'px';
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  // остальные переменные и логика без изменений
   let points = 0, clicksSinceLastGift = 0, nextGiftAt = getRandomInt(1, 10);
   const counter = document.getElementById('counter');
   const message = document.getElementById('message');
